@@ -121,7 +121,20 @@ class DLL:
             if False, add to front (head-end).
         :return: None.
         """
-
+        if self.head is None:
+            self.head = Node(val)
+            self.tail = self.head
+            self.size += 1
+        elif back:
+            self.tail.next = Node(val)
+            self.tail.next.prev = self.tail
+            self.tail = self.tail.next
+            self.size += 1
+        elif not back:
+            self.head.prev = Node(val)
+            self.head.prev.next = self.head
+            self.head = self.head.prev
+            self.size += 1
         pass
 
     def pop(self, back: bool = True) -> None:
