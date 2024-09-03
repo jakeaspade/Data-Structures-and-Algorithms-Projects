@@ -145,6 +145,17 @@ class DLL:
             if False, remove from front (head-end).
         :return: None.
         """
+        if self.head:
+            if self.head == self.tail:
+                self.head = None
+                self.tail = None
+            elif back:
+                self.tail.prev.next = self.tail.next
+                self.tail = self.tail.prev
+            elif not back:
+                self.head.next.prev = self.head.prev
+                self.head = self.head.next
+            self.size -= 1
         pass
 
     def list_to_dll(self, source: List[T]) -> None:
