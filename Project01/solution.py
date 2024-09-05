@@ -8,6 +8,8 @@ starter.py
 """
 
 from __future__ import annotations
+
+from contextlib import nullcontext
 from typing import TypeVar, List, Tuple, Optional
 
 # for more information on type hinting, check out https://docs.python.org/3/library/typing.html
@@ -165,6 +167,11 @@ class DLL:
         :param source: standard Python list from which to construct DLL.
         :return: None.
         """
+        self.head = None
+        self.tail = None
+        self.size = 0
+        for elem in source:
+            self.push(val=elem)
         pass
 
     def dll_to_list(self) -> List[T]:
@@ -173,7 +180,12 @@ class DLL:
 
         :return: standard Python list containing values stored in DLL.
         """
-        pass
+        current_node = self.head
+        dll_list = []
+        while current_node != None:
+            dll_list.append(current_node.value)
+            current_node = current_node.next
+        return dll_list
 
     def _find_nodes(self, val: T, find_first: bool = False) -> List[Node]:
         """
