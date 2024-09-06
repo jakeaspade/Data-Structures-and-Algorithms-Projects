@@ -12,6 +12,8 @@ from __future__ import annotations
 from contextlib import nullcontext
 from typing import TypeVar, List, Tuple, Optional
 
+from Scripts.activate_this import prev_length
+
 # for more information on type hinting, check out https://docs.python.org/3/library/typing.html
 T = TypeVar("T")  # represents generic type
 Node = TypeVar("Node")  # represents a Node object (forward-declare to use in Node __init__)
@@ -292,7 +294,19 @@ class DLL:
 
         :return: None.
         """
-        pass
+        current_node = self.head
+        while current_node != None:
+            temp = current_node.prev
+            current_node.prev = current_node.next
+            current_node.next = temp
+            if current_node == self.head:
+                new_tail = current_node
+            if current_node == self.tail:
+                new_head = current_node
+            current_node = current_node.prev
+        if self.head is not None and self.tail is not None:
+            self.head = new_head
+            self.tail = new_tail
 
 
 # MODIFY BELOW #
