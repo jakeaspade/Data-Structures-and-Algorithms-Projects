@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from contextlib import nullcontext
 from typing import TypeVar, List, Tuple, Optional
+from xml.sax import parse
 
 from Scripts.activate_this import prev_length
 
@@ -324,21 +325,28 @@ class GitBranch(DLL):
         :param value: Value to be added to the branch.
         :return: The new last node of the branch.
         """
-        pass
+        if self.head is None:
+            self.push(value)
+            self.head.prev = self.parent_node
+            if self.parent_node is not None:
+                self.parent_node.next = self.head
+        else:
+            self.push(value)
+        return self.tail
 
     def get_first_commit(self) -> Node:
         """
         Get first commit on the branch/timeline.
         :return: The first commit node on the branch.
         """
-        pass
+        return self.head
     
     def get_last_commit(self) -> Node:
         """
         Get the last commit on the branch/timeline.
         :return: The last commit node on the branch.
         """
-        pass
+        return self.tail
 
 
 class Git:
@@ -360,14 +368,20 @@ class Git:
         Return the value stored in the currently selected commit.
         :return: current working commit of tree.
         """
-        pass
+        if self.selected_commit is None:
+            return None
+        else:
+            return self.selected_commit.value
 
     def get_current_branch_name(self) -> Optional[str]:
         """
         Return the name of the current working/active branch.
         :return: Name of current working branch.
         """
-        pass
+        if self.current_branch is None:
+            return None
+        else:
+            return self.current_branch.name
 
     def commit(self, message: str) -> None:
         """
@@ -375,14 +389,22 @@ class Git:
         If current working commit is not the last commit, raise exception.
         :param message: Message to be added to commit.
         """
-        pass
+        if self.selected_commit == self.current_branch.get_last_commit():
+            self.current_branch.push_commit(message)
+            self.selected_commit = self.current_branch.get_last_commit()
+        else:
+            raise Exception("Selected commit is not the last commit")
 
     def backwards(self) -> None:
         """
         Moves the reference of the current working commit back one commit.
         If already in the first commit of tree, do not move.
         """
-        pass
+        if self.selected_commit is not None:
+            if self.selected_commit.prev is not None:
+                self.selected_commit = self.selected_commit.prev
+        elif self.current_branch.head == None:
+            self.selected_commit = self.current_branch.parent_node
 
     def forward(self) -> None:
         """
@@ -390,7 +412,11 @@ class Git:
         Keep the working commit on the working branch if multiple branches available.
         If already in the last commit of tree, do not move.
         """
-        pass
+        if self.selected_commit is not None:
+            if self.selected_commit.next is not None:
+                self.selected_commit = self.selected_commit.next
+        elif self.current_branch.head == None:
+            self.selected_commit = self.current_branch.parent_node
 
     # DO NOT MODIFY BELOW #
     # The following methods are already implemented for you to (1) better understand how Git works,
