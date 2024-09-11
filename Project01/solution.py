@@ -328,8 +328,6 @@ class GitBranch(DLL):
         if self.head is None:
             self.push(value)
             self.head.prev = self.parent_node
-            if self.parent_node is not None:
-                self.parent_node.next = self.head
         else:
             self.push(value)
         return self.tail
@@ -400,11 +398,34 @@ class Git:
         Moves the reference of the current working commit back one commit.
         If already in the first commit of tree, do not move.
         """
+            # if there is nothing before the selected commit
+        # if self.selected_commit == self.current_branch.head:
+        #     if self.current_branch.parent_node is not None:
+        #         self.visited_branches.add(self.current_branch)
+        #         self.selected_commit = self.current_branch.parent_node
+        #
+
+        # Mostly here to avoid errors when the selected_commit is None
         if self.selected_commit is not None:
             if self.selected_commit.prev is not None:
-                self.selected_commit = self.selected_commit.prev
-        elif self.current_branch.head == None:
-            self.selected_commit = self.current_branch.parent_node
+                if self.selected_commit.prev.children_branch is not None:
+                    # If you switch branches moving backward on the path
+                    if self.selected_commit.prev.children_branch.head == self.selected_commit:
+                        self.selected_commit = self.selected_commit.prev
+                        # add the branch you just came from to the visited branches (leaving stones)
+                        self.visited_branches.add(self.selected_commit.children_branch)
+                    # Move backward normally within the same branch if you are not at the first commit on the main branch
+                    elif self.selected_commit.prev is not None:
+                        self.selected_commit = self.selected_commit.prev
+                # Move backward normally within the same branch if you are not at the first commit on the main branch
+                else:
+                    self.selected_commit = self.selected_commit.prev
+        # Empty branch from new checkout
+        else:
+            if self.selected_commit != self.start.head:
+                self.selected_commit = self.current_branch.parent_node
+                self.visited_branches.add(self.selected_commit.children_branch)
+
 
     def forward(self) -> None:
         """
@@ -413,10 +434,12 @@ class Git:
         If already in the last commit of tree, do not move.
         """
         if self.selected_commit is not None:
-            if self.selected_commit.next is not None:
+            # Follows stones left by self.backwards
+            if self.selected_commit.children_branch in self.visited_branches:
+                self.selected_commit = self.selected_commit.children_branch.head
+            # If this path wasn't walked
+            elif self.selected_commit.next is not None:
                 self.selected_commit = self.selected_commit.next
-        elif self.current_branch.head == None:
-            self.selected_commit = self.current_branch.parent_node
 
     # DO NOT MODIFY BELOW #
     # The following methods are already implemented for you to (1) better understand how Git works,
