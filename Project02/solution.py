@@ -32,7 +32,12 @@ def selection_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda
     """
     This sort starts at the beginning of a list and finds the minimum of the list from data[i:].  After finding
     the min_index, the elements of i and min_index are swapped, effectively putting the minimum value at the beginning
-    of the unsorted part of the list
+    of the unsorted part of the list.
+
+    :param data: The list to sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
     n = len(data)
     for i in range(n):
@@ -46,7 +51,13 @@ def selection_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda
 def bubble_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
                 descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort compares adjacent elements and swaps them if they are in the wrong order.  This process is repeated
+    until the list is sorted.
+
+    :param data: The list to sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
     swapped = True
     while swapped:
@@ -60,7 +71,14 @@ def bubble_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x,
 def insertion_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
                    descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort builds the final sorted list one element at a time.  It takes the first element and skips it, then for every
+    number after the first element, it inserts the number into the correct position in the sorted part of the list.
+    The sorted part of the list is always the first i elements of the list.
+
+    :param data: The list to sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
     for i in range(len(data)):
         if i == 0:
@@ -81,7 +99,15 @@ def insertion_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda
 def hybrid_merge_sort(data: List[T], *, threshold: int = 12,
                       comparator: Callable[[T, T], bool] = lambda x, y: x < y, descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort is a hybrid of merge and insertion sorts.  It uses insertion sort for small lists and merge sort for
+    larger lists.  The threshold parameter determines the size of the list that will be sorted using insertion sort.
+    This sort is also capable of using only merge sort if the threshold is set to 0.
+
+    :param data: The list to sort
+    :param threshold: The size of the list that will be sorted using insertion sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
     # True merge sort (no insertion)
     if threshold == 0:
@@ -233,6 +259,23 @@ class Product:
 ###########################################################
 def recommend_products(products: List[Product], sorted_by: str) -> List[Product]:
     """
-    FILL OUT DOCSTRING.
+    Given a list of products and a sorting criteria, return a list of recommended products sorted by the sorting criteria.
+
+    :param products: A list of products to recommend
+    :param sorted_by: A string that specifies the sorting criteria. It can be one of the following:
+        - 'price_low_to_high': Sort products by price in ascending order
+        - 'price_high_to_low': Sort products by price in descending order
+        - 'rating': Sort products by rating in descending order
+    :return: A list of recommended products sorted by the sorting criteria
     """
-    pass
+    sorted = products
+    hybrid_merge_sort(data=sorted, comparator=lambda x,y: x.relevance > y.relevance)
+    sorted = sorted[:round(len(sorted) * .3)]
+
+    if sorted_by == 'price_low_to_high':
+        hybrid_merge_sort(data=sorted, comparator=lambda x, y: x.price < y.price if x.price!=y.price else x.rating>y.rating, descending=False)
+    if sorted_by == 'price_high_to_low':
+        hybrid_merge_sort(data=sorted, comparator=lambda x, y: x.price > y.price if x.price!=y.price else x.rating>y.rating, descending=False)
+    if sorted_by == 'rating':
+        hybrid_merge_sort(data=sorted, comparator=lambda x, y: x.rating > y.rating if x.rating!=y.rating else x.price<y.price, descending=False)
+    return sorted
