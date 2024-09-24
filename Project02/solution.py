@@ -11,17 +11,36 @@ T = TypeVar("T")  # represents generic type
 # This is an optional helper function but HIGHLY recommended, especially for the application problem!
 def do_comparison(first: T, second: T, comparator: Callable[[T, T], bool], descending: bool) -> bool:
     """
-    FILL OUT DOCSTRING
-    """
-    pass
+    Does the comparison between two elements based on the comparator criteria used by the sorting function
+        and the returns the result based on the descending boolean.
 
+    :param first: The first element to compare
+    :param second: The second element to compare
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: A boolean that indicates whether the comparison is True or False
+
+    """
+    decision = comparator(first,second)
+    if descending:
+        return not decision
+    else:
+        return decision
 
 def selection_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
                    descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort starts at the beginning of a list and finds the minimum of the list from data[i:].  After finding
+    the min_index, the elements of i and min_index are swapped, effectively putting the minimum value at the beginning
+    of the unsorted part of the list
     """
-    pass
+    n = len(data)
+    for i in range(n):
+        min_index = i
+        for j in range(i+1,n):
+            if do_comparison(data[j],data[min_index],comparator,descending):
+                min_index = j
+        data[i],data[min_index] = data[min_index],data[i]
 
 
 def bubble_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
@@ -166,3 +185,4 @@ def recommend_products(products: List[Product], sorted_by: str) -> List[Product]
     """
     FILL OUT DOCSTRING.
     """
+    pass
