@@ -10,6 +10,7 @@ starter.py
 from __future__ import annotations
 from typing import TypeVar, List, Tuple, Optional
 
+
 # for more information on type hinting, check out https://docs.python.org/3/library/typing.html
 T = TypeVar("T")  # represents generic type
 Node = TypeVar("Node")  # represents a Node object (forward-declare to use in Node __init__)
@@ -110,7 +111,7 @@ class DLL:
             return True
         else:
             return False
-        pass
+
 
     def push(self, val: T, back: bool = True) -> None:
         """
@@ -135,7 +136,7 @@ class DLL:
             self.head.prev.next = self.head
             self.head = self.head.prev
             self.size += 1
-        pass
+
 
     def pop(self, back: bool = True) -> None:
         """
@@ -145,7 +146,18 @@ class DLL:
             if False, remove from front (head-end).
         :return: None.
         """
-        pass
+        if self.head:
+            if self.head == self.tail:
+                self.head = None
+                self.tail = None
+            elif back:
+                self.tail.prev.next = self.tail.next
+                self.tail = self.tail.prev
+            elif not back:
+                self.head.next.prev = self.head.prev
+                self.head = self.head.next
+            self.size -= 1
+
 
     def list_to_dll(self, source: List[T]) -> None:
         """
@@ -154,7 +166,12 @@ class DLL:
         :param source: standard Python list from which to construct DLL.
         :return: None.
         """
-        pass
+        self.head = None
+        self.tail = None
+        self.size = 0
+        for elem in source:
+            self.push(val=elem)
+
 
     def dll_to_list(self) -> List[T]:
         """
@@ -162,7 +179,12 @@ class DLL:
 
         :return: standard Python list containing values stored in DLL.
         """
-        pass
+        current_node = self.head
+        dll_list = []
+        while current_node != None:
+            dll_list.append(current_node.value)
+            current_node = current_node.next
+        return dll_list
 
     def _find_nodes(self, val: T, find_first: bool = False) -> List[Node]:
         """
@@ -173,7 +195,15 @@ class DLL:
         occurrences of val
         :return: A list of all the Nodes with value val.
         """
-        pass
+        current_node = self.head
+        found = []
+        while current_node != None:
+            if current_node.value == val:
+                found.append(current_node)
+                if find_first:
+                    break
+            current_node = current_node.next
+        return found
 
     def find(self, val: T) -> Node:
         """
@@ -181,9 +211,13 @@ class DLL:
 
         :param val: value to be found in DLL.
         :return: first Node object in DLL containing `val`.
-            If `val` does not exist in DLL, return an empty list.
+            If `val` does not exist in DLL, return None.
         """
-        pass
+        node = self._find_nodes(val=val, find_first=True)
+        if node == []:
+            return None
+        else:
+            return node[0]
 
     def find_all(self, val: T) -> List[Node]:
         """
@@ -191,9 +225,13 @@ class DLL:
 
         :param val: value to be searched for in DLL.
         :return: Python list of all Node objects in DLL containing `val`.
-            If `val` does not exist in DLL, return None.
+            If `val` does not exist in DLL, return empty list.
         """
-        pass
+        nodes = self._find_nodes(val=val, find_first=False)
+        if nodes == []:
+            return []
+        else:
+            return nodes
 
     def _remove_node(self, to_remove: Node) -> None:
         """
@@ -203,7 +241,15 @@ class DLL:
         :param to_remove: node to be removed from the list
         :return: None
         """
-        pass
+        if to_remove == self.tail:
+            self.pop()
+        elif to_remove == self.head:
+            self.pop(back=False)
+        else:
+            to_remove.prev.next = to_remove.next
+            to_remove.next.prev = to_remove.prev
+            self.size -= 1
+
 
     def remove(self, val: T) -> bool:
         """
@@ -212,7 +258,14 @@ class DLL:
         :param val: value to be deleted from DLL.
         :return: True if Node containing `val` was deleted from DLL; else, False.
         """
-        pass
+        current_node = self.head
+        removed = False
+        while current_node != None and not removed:
+            if current_node.value == val:
+                self._remove_node(current_node)
+                removed = True
+            current_node = current_node.next
+        return removed
 
     def remove_all(self, val: T) -> int:
         """
@@ -222,7 +275,14 @@ class DLL:
         :return: integer indicating the number of Nodes containing `val` deleted from DLL;
                  if no Node containing `val` exists in DLL, return 0.
         """
-        pass
+        current_node = self.head
+        removed = 0
+        while current_node != None:
+            if current_node.value == val:
+                self._remove_node(current_node)
+                removed += 1
+            current_node = current_node.next
+        return removed
 
     def reverse(self) -> None:
         """
@@ -231,7 +291,19 @@ class DLL:
 
         :return: None.
         """
-        pass
+        current_node = self.head
+        while current_node != None:
+            temp = current_node.prev
+            current_node.prev = current_node.next
+            current_node.next = temp
+            if current_node == self.head:
+                new_tail = current_node
+            if current_node == self.tail:
+                new_head = current_node
+            current_node = current_node.prev
+        if self.head is not None and self.tail is not None:
+            self.head = new_head
+            self.tail = new_tail
 
 
 # MODIFY BELOW #
@@ -249,21 +321,26 @@ class GitBranch(DLL):
         :param value: Value to be added to the branch.
         :return: The new last node of the branch.
         """
-        pass
+        if self.head is None:
+            self.push(value)
+            self.head.prev = self.parent_node
+        else:
+            self.push(value)
+        return self.tail
 
     def get_first_commit(self) -> Node:
         """
         Get first commit on the branch/timeline.
         :return: The first commit node on the branch.
         """
-        pass
+        return self.head
     
     def get_last_commit(self) -> Node:
         """
         Get the last commit on the branch/timeline.
         :return: The last commit node on the branch.
         """
-        pass
+        return self.tail
 
 
 class Git:
@@ -285,14 +362,20 @@ class Git:
         Return the value stored in the currently selected commit.
         :return: current working commit of tree.
         """
-        pass
+        if self.selected_commit is None:
+            return None
+        else:
+            return self.selected_commit.value
 
     def get_current_branch_name(self) -> Optional[str]:
         """
         Return the name of the current working/active branch.
         :return: Name of current working branch.
         """
-        pass
+        if self.current_branch is None:
+            return None
+        else:
+            return self.current_branch.name
 
     def commit(self, message: str) -> None:
         """
@@ -300,14 +383,45 @@ class Git:
         If current working commit is not the last commit, raise exception.
         :param message: Message to be added to commit.
         """
-        pass
+        if self.selected_commit == self.current_branch.get_last_commit():
+            self.current_branch.push_commit(message)
+            self.selected_commit = self.current_branch.get_last_commit()
+        else:
+            raise Exception("Selected commit is not the last commit")
 
     def backwards(self) -> None:
         """
         Moves the reference of the current working commit back one commit.
         If already in the first commit of tree, do not move.
         """
-        pass
+            # if there is nothing before the selected commit
+        # if self.selected_commit == self.current_branch.head:
+        #     if self.current_branch.parent_node is not None:
+        #         self.visited_branches.add(self.current_branch)
+        #         self.selected_commit = self.current_branch.parent_node
+        #
+
+        # Mostly here to avoid errors when the selected_commit is None
+        if self.selected_commit is not None:
+            if self.selected_commit.prev is not None:
+                if self.selected_commit.prev.children_branch is not None:
+                    # If you switch branches moving backward on the path
+                    if self.selected_commit.prev.children_branch.head == self.selected_commit:
+                        self.selected_commit = self.selected_commit.prev
+                        # add the branch you just came from to the visited branches (leaving stones)
+                        self.visited_branches.add(self.selected_commit.children_branch)
+                    # Move backward normally within the same branch if you are not at the first commit on the main branch
+                    elif self.selected_commit.prev is not None:
+                        self.selected_commit = self.selected_commit.prev
+                # Move backward normally within the same branch if you are not at the first commit on the main branch
+                else:
+                    self.selected_commit = self.selected_commit.prev
+        # Empty branch from new checkout
+        else:
+            if self.selected_commit != self.start.head:
+                self.selected_commit = self.current_branch.parent_node
+                self.visited_branches.add(self.selected_commit.children_branch)
+
 
     def forward(self) -> None:
         """
@@ -315,7 +429,13 @@ class Git:
         Keep the working commit on the working branch if multiple branches available.
         If already in the last commit of tree, do not move.
         """
-        pass
+        if self.selected_commit is not None:
+            # Follows stones left by self.backwards
+            if self.selected_commit.children_branch in self.visited_branches:
+                self.selected_commit = self.selected_commit.children_branch.head
+            # If this path wasn't walked
+            elif self.selected_commit.next is not None:
+                self.selected_commit = self.selected_commit.next
 
     # DO NOT MODIFY BELOW #
     # The following methods are already implemented for you to (1) better understand how Git works,
