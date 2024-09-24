@@ -8,12 +8,8 @@ starter.py
 """
 
 from __future__ import annotations
-
-from contextlib import nullcontext
 from typing import TypeVar, List, Tuple, Optional
-from xml.sax import parse
 
-from Scripts.activate_this import prev_length
 
 # for more information on type hinting, check out https://docs.python.org/3/library/typing.html
 T = TypeVar("T")  # represents generic type
