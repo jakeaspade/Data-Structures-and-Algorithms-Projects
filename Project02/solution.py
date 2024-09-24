@@ -2,7 +2,7 @@
 Project 2 - Hybrid Sorting
 CSE 331 Fall 2024
 """
-
+from msvcrt import kbhit
 from typing import TypeVar, List, Callable
 
 T = TypeVar("T")  # represents generic type
@@ -48,7 +48,13 @@ def bubble_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x,
     """
     FILL OUT DOCSTRING
     """
-    pass
+    swapped = True
+    while swapped:
+        swapped = False
+        for i in range(1, len(data)):
+            if do_comparison(data[i], data[i - 1], comparator, descending):
+                data[i], data[i - 1] = data[i - 1], data[i]
+                swapped = True
 
 
 def insertion_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
@@ -56,7 +62,20 @@ def insertion_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda
     """
     FILL OUT DOCSTRING
     """
-    pass
+    for i in range(len(data)):
+        if i == 0:
+            continue
+        temp = data[i]
+        data.pop(i)
+        insert_index = i
+        j = i
+        while j >= 1:
+            if do_comparison(temp, data[j-1], comparator, descending):
+                insert_index -= 1
+                j -= 1
+            else:
+                break
+        data.insert(insert_index, temp)
 
 
 def hybrid_merge_sort(data: List[T], *, threshold: int = 12,
@@ -64,7 +83,38 @@ def hybrid_merge_sort(data: List[T], *, threshold: int = 12,
     """
     FILL OUT DOCSTRING
     """
-    pass
+    # True merge sort (no insertion)
+    if threshold == 0:
+        if len(data) == 1:
+            return
+    # Hybrid merge sort (uses insertion at a threshold)
+    if len(data) <= threshold:
+        insertion_sort(data=data, comparator=comparator, descending=descending)
+
+    else:
+        left_part = data[:len(data)//2]
+        right_part = data[len(data)//2:]
+        hybrid_merge_sort(data=left_part, threshold=threshold, comparator=comparator, descending=descending)
+        hybrid_merge_sort(data=right_part, threshold=threshold, comparator=comparator, descending=descending)
+        k = 0
+        while len(left_part) > 0 and len(right_part) > 0:
+            if do_comparison(left_part[0], right_part[0], comparator, descending):
+                data[k] = left_part[0]
+                left_part.pop(0)
+            else:
+                data[k] = right_part[0]
+                right_part.pop(0)
+            k += 1
+       # In case of len(left_part) != len(right_part)
+
+        # Merge remaining left part if there are more remaining
+        for num in left_part:
+            data[k] = num
+            k += 1
+        # Merge remaining right part if there are more remaining
+        for num in right_part:
+            data[k] = num
+            k += 1
 
 
 def quicksort(data: List[T]) -> None:
