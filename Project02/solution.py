@@ -2,7 +2,7 @@
 Project 2 - Hybrid Sorting
 CSE 331 Fall 2024
 """
-
+from msvcrt import kbhit
 from typing import TypeVar, List, Callable
 
 T = TypeVar("T")  # represents generic type
@@ -11,41 +11,136 @@ T = TypeVar("T")  # represents generic type
 # This is an optional helper function but HIGHLY recommended, especially for the application problem!
 def do_comparison(first: T, second: T, comparator: Callable[[T, T], bool], descending: bool) -> bool:
     """
-    FILL OUT DOCSTRING
-    """
-    pass
+    Does the comparison between two elements based on the comparator criteria used by the sorting function
+        and the returns the result based on the descending boolean.
 
+    :param first: The first element to compare
+    :param second: The second element to compare
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: A boolean that indicates whether the comparison is True or False
+
+    """
+    decision = comparator(first,second)
+    if descending:
+        return not decision
+    else:
+        return decision
 
 def selection_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
                    descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort starts at the beginning of a list and finds the minimum of the list from data[i:].  After finding
+    the min_index, the elements of i and min_index are swapped, effectively putting the minimum value at the beginning
+    of the unsorted part of the list.
+
+    :param data: The list to sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
-    pass
+    n = len(data)
+    for i in range(n):
+        min_index = i
+        for j in range(i+1,n):
+            if do_comparison(data[j],data[min_index],comparator,descending):
+                min_index = j
+        data[i],data[min_index] = data[min_index],data[i]
 
 
 def bubble_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
                 descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort compares adjacent elements and swaps them if they are in the wrong order.  This process is repeated
+    until the list is sorted.
+
+    :param data: The list to sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
-    pass
+    swapped = True
+    while swapped:
+        swapped = False
+        for i in range(1, len(data)):
+            if do_comparison(data[i], data[i - 1], comparator, descending):
+                data[i], data[i - 1] = data[i - 1], data[i]
+                swapped = True
 
 
 def insertion_sort(data: List[T], *, comparator: Callable[[T, T], bool] = lambda x, y: x < y,
                    descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort builds the final sorted list one element at a time.  It takes the first element and skips it, then for every
+    number after the first element, it inserts the number into the correct position in the sorted part of the list.
+    The sorted part of the list is always the first i elements of the list.
+
+    :param data: The list to sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
-    pass
+    for i in range(len(data)):
+        if i == 0:
+            continue
+        temp = data[i]
+        data.pop(i)
+        insert_index = i
+        j = i
+        while j >= 1:
+            if do_comparison(temp, data[j-1], comparator, descending):
+                insert_index -= 1
+                j -= 1
+            else:
+                break
+        data.insert(insert_index, temp)
 
 
 def hybrid_merge_sort(data: List[T], *, threshold: int = 12,
                       comparator: Callable[[T, T], bool] = lambda x, y: x < y, descending: bool = False) -> None:
     """
-    FILL OUT DOCSTRING
+    This sort is a hybrid of merge and insertion sorts.  It uses insertion sort for small lists and merge sort for
+    larger lists.  The threshold parameter determines the size of the list that will be sorted using insertion sort.
+    This sort is also capable of using only merge sort if the threshold is set to 0.
+
+    :param data: The list to sort
+    :param threshold: The size of the list that will be sorted using insertion sort
+    :param comparator: The function to use to compare the two elements
+    :param descending: A boolean that indicates whether the comparison should be in descending order
+    :return: None
     """
-    pass
+    # True merge sort (no insertion)
+    if threshold == 0:
+        if len(data) == 1:
+            return
+    # Hybrid merge sort (uses insertion at a threshold)
+    if len(data) <= threshold:
+        insertion_sort(data=data, comparator=comparator, descending=descending)
+
+    else:
+        left_part = data[:len(data)//2]
+        right_part = data[len(data)//2:]
+        hybrid_merge_sort(data=left_part, threshold=threshold, comparator=comparator, descending=descending)
+        hybrid_merge_sort(data=right_part, threshold=threshold, comparator=comparator, descending=descending)
+        k = 0
+        while len(left_part) > 0 and len(right_part) > 0:
+            if do_comparison(left_part[0], right_part[0], comparator, descending):
+                data[k] = left_part[0]
+                left_part.pop(0)
+            else:
+                data[k] = right_part[0]
+                right_part.pop(0)
+            k += 1
+       # In case of len(left_part) != len(right_part)
+
+        # Merge remaining left part if there are more remaining
+        for num in left_part:
+            data[k] = num
+            k += 1
+        # Merge remaining right part if there are more remaining
+        for num in right_part:
+            data[k] = num
+            k += 1
 
 
 def quicksort(data: List[T]) -> None:
@@ -164,5 +259,23 @@ class Product:
 ###########################################################
 def recommend_products(products: List[Product], sorted_by: str) -> List[Product]:
     """
-    FILL OUT DOCSTRING.
+    Given a list of products and a sorting criteria, return a list of recommended products sorted by the sorting criteria.
+
+    :param products: A list of products to recommend
+    :param sorted_by: A string that specifies the sorting criteria. It can be one of the following:
+        - 'price_low_to_high': Sort products by price in ascending order
+        - 'price_high_to_low': Sort products by price in descending order
+        - 'rating': Sort products by rating in descending order
+    :return: A list of recommended products sorted by the sorting criteria
     """
+    sorted = products
+    hybrid_merge_sort(data=sorted, comparator=lambda x,y: x.relevance > y.relevance)
+    sorted = sorted[:round(len(sorted) * .3)]
+
+    if sorted_by == 'price_low_to_high':
+        hybrid_merge_sort(data=sorted, comparator=lambda x, y: x.price < y.price if x.price!=y.price else x.rating>y.rating, descending=False)
+    if sorted_by == 'price_high_to_low':
+        hybrid_merge_sort(data=sorted, comparator=lambda x, y: x.price > y.price if x.price!=y.price else x.rating>y.rating, descending=False)
+    if sorted_by == 'rating':
+        hybrid_merge_sort(data=sorted, comparator=lambda x, y: x.rating > y.rating if x.rating!=y.rating else x.price<y.price, descending=False)
+    return sorted
