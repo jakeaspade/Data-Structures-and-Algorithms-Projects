@@ -2,7 +2,7 @@
 Project 2 - Hybrid Sorting
 CSE 331 Fall 2024
 """
-from msvcrt import kbhit
+
 from typing import TypeVar, List, Callable
 
 T = TypeVar("T")  # represents generic type
