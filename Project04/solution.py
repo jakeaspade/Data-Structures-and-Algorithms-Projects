@@ -96,17 +96,22 @@ class CircularDeque:
         """
         INSERT DOCSTRINGS HERE!
         """
+        # If deque is empty
         if self.front is None and self.back is None:
             self.front = 0
             self.back = 0
+            self.queue[self.front] = value
+        elif front:
+            self.front = (self.front - 1) % self.capacity
+            self.queue[self.front] = value
+        else:
+            self.back = (self.back + 1) % self.capacity
+            self.queue[self.back] = value
+
+        self.size += 1
+        # If deque is full
         if self.size == self.capacity:
             self.grow()
-        if front:
-            self.queue.insert(self.front, value)
-        else:
-            self.queue.insert(self.back + 1, value)
-        self.size += 1
-
     def dequeue(self, front: bool = True) -> T:
         """
         INSERT DOCSTRINGS HERE!
@@ -122,22 +127,23 @@ class CircularDeque:
             else:
                 removed = self.queue[self.back]
                 if self.front != self.back:
-                    self.back = (self.back - 1) % 7
+                    self.back = (self.back - 1) % self.capacity
                 else:
                     self.front = None
                     self.back = None
 
             self.size -= 1
 
-            # if self.size == self.capacity / 4 and self.capacity // 2 >= 4:
-            #     self.shrink()
+            if self.size == self.capacity / 4 and self.capacity // 2 >= 4:
+                 self.shrink()
             return removed
-        return None
+        return
     def grow(self) -> None:
         """
         INSERT DOCSTRINGS HERE!
         """
         new_queue = [None] * self.capacity * 2
+        temp_cap = self.capacity
         j = 0
         while not self.is_empty():
             new_queue[j] = self.dequeue()
@@ -146,7 +152,7 @@ class CircularDeque:
         self.back = j - 1
         self.size = j
         self.queue = new_queue
-        self.capacity *= 2
+        self.capacity = temp_cap * 2
 
 
     def shrink(self) -> None:
@@ -154,10 +160,16 @@ class CircularDeque:
         INSERT DOCSTRINGS HERE!
         """
         new_queue = [None] * (self.capacity // 2)
-        for i in range(self.capacity // 2):
-            new_queue[i] = self.queue[i]
+        temp_cap = self.capacity
+        j = 0
+        while not self.is_empty():
+            new_queue[j] = self.dequeue()
+            j += 1
+        self.front = 0
+        self.back = j - 1
+        self.size = j
         self.queue = new_queue
-        self.capacity = self.capacity // 2
+        self.capacity = temp_cap // 2
 
 def get_winning_numbers(numbers: List[int], size: int) -> List[int]:
     """
