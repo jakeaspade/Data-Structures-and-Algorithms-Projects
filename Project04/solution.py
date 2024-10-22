@@ -69,50 +69,95 @@ class CircularDeque:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        return self.size
     def is_empty(self) -> bool:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        if self.size == 0:
+            return True
+        return False
 
     def front_element(self) -> T:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        if not self.is_empty():
+            return self.queue[self.front]
 
     def back_element(self) -> T:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        if not self.is_empty():
+            return self.queue[self.back]
 
     def enqueue(self, value: T, front: bool = True) -> None:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        if self.front is None and self.back is None:
+            self.front = 0
+            self.back = 0
+        if self.size == self.capacity:
+            self.grow()
+        if front:
+            self.queue.insert(self.front, value)
+        else:
+            self.queue.insert(self.back + 1, value)
+        self.size += 1
 
     def dequeue(self, front: bool = True) -> T:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        if not self.is_empty():
+            if front:
+                removed = self.queue[self.front]
+                if self.front != self.back:
+                    self.front = (self.front + 1) % self.capacity
+                else:
+                    self.front = None
+                    self.back = None
+            else:
+                removed = self.queue[self.back]
+                if self.front != self.back:
+                    self.back = (self.back - 1) % 7
+                else:
+                    self.front = None
+                    self.back = None
 
+            self.size -= 1
+
+            # if self.size == self.capacity / 4 and self.capacity // 2 >= 4:
+            #     self.shrink()
+            return removed
+        return None
     def grow(self) -> None:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
+        new_queue = [None] * self.capacity * 2
+        j = 0
+        while not self.is_empty():
+            new_queue[j] = self.dequeue()
+            j += 1
+        self.front = 0
+        self.back = j - 1
+        self.size = j
+        self.queue = new_queue
+        self.capacity *= 2
 
 
     def shrink(self) -> None:
         """
         INSERT DOCSTRINGS HERE!
         """
-        pass
-
+        new_queue = [None] * (self.capacity // 2)
+        for i in range(self.capacity // 2):
+            new_queue[i] = self.queue[i]
+        self.queue = new_queue
+        self.capacity = self.capacity // 2
 
 def get_winning_numbers(numbers: List[int], size: int) -> List[int]:
     """
