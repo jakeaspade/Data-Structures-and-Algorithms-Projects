@@ -205,7 +205,16 @@ def get_winning_numbers(numbers: List[int], size: int) -> List[int]:
     """
     INSERT DOCSTRINGS HERE!
     """
-    pass
+    window =  CircularDeque(data=numbers, capacity=len(numbers))
+    window.front = 0
+    window.back = size - 1
+
+    max_list = []
+    while window.back < window.capacity:
+        max_list.append(max(window.queue[window.front:window.back + 1]))
+        window.front += 1
+        window.back += 1
+    return max_list
     
 
 
@@ -213,6 +222,12 @@ def get_winning_probability(winning_numbers: List[int]) -> int:
     """
     INSERT DOCSTRINGS HERE!
     """
-    pass
+    even_path = winning_numbers[0::2]
+    odd_path = winning_numbers[1::2]
+    even_path_sum = sum(even_path)
+    odd_path_sum = sum(odd_path)
+    if even_path_sum > odd_path_sum:
+        return even_path_sum
+    return odd_path_sum
 
 
